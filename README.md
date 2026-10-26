@@ -400,3 +400,27 @@ node scripts/setup.mjs 2.2.0
 - [`dsh-our-free-model`](https://www.npmjs.com/package/dsh-our-free-model) —— 上游客户端链路、协议实现与本项目的核心依赖
 - `astrbot_plugin_our_free_model`（NekoHome，尚未公开仓库）—— AstrBot 侧接入方式与诊断设计的参考
 - [`WorkBuddy-Access-Platform`](https://github.com/mydanyi/WorkBuddy-Access-Platform) —— 内嵌网关与主备降级思路的参考
+---
+
+## 本仓库额外内容
+
+在官方网关之外，这里还放了几样配套的东西（都在上游没有的目录里，随时可以删掉）：
+
+| 路径 | 内容 |
+|---|---|
+| `astrbot-plugin/astrbot_plugin_our_free_model/` | AstrBot 插件源码：把网关注册成 AstrBot 的 `openai_chat_completion` 提供商，带 `/ofm` 指令、`ruff.toml` 与 112 项离线自测 |
+| `tools/build_plugin_zip.py` | 打 AstrBot 上传包（顶层目录 + `metadata.yaml`，只含运行时文件） |
+| `tools/verify-plugin-zip.mjs` | 按 AstrBot v4.28 的归档校验规则预检 zip，上传前先跑一遍 |
+| `tools/test-gateway.mjs` | 网关接口用例（鉴权、三套协议、流式、模式边界、并发、大请求体） |
+| `patches/0001-images-and-vendor-gaps.patch` | 本仓库相对上游的改动（图片判断 + vendor 两处补丁） |
+| `patches/astrbot-4.28.1-stat-timezone.patch` | AstrBot 4.28.1 统计页 naive datetime 崩溃的一行修复 |
+| `docs/ASTRBOT-PLUGIN.md` | 插件两种链路、配置项与常见上传失败原因 |
+| `docs/PATCH-NOTES.md` | 网关相对上游改了什么、怎么跑、重装 vendor 后怎么重打补丁 |
+| `docs/TEST_REPORT.md` | 实测报告与已知问题 |
+
+插件打包与自检：
+
+```bash
+python tools/build_plugin_zip.py
+node tools/verify-plugin-zip.mjs dist/astrbot_plugin_our_free_model-*.zip
+```

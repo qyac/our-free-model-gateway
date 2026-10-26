@@ -1,0 +1,34 @@
+name: astrbot_plugin_our_free_model
+display_name: Our Free Model 免费模型接入（经 Nami 中转）
+short_desc: 把 dsh-our-free-model 的免费模型经 Nami 中转接进 AstrBot，免 Key 用上免费模型
+desc: |
+  把 [dsh-our-free-model](https://github.com/)（OFM）的免费模型接进 AstrBot。
+
+  默认走 **Nami 中转**（`relay_mode=nami`）：插件把模型注册成 AstrBot 的
+  `openai_chat_completion` 提供商，但 `api_base` 指向 Nami（默认
+  `http://127.0.0.1:8787/v1`），由 Nami 再转发到 OFM 的本地网关。于是免费模型
+  照常出现在 WebUI 的「模型提供商」与聊天页模型选择器里，同时还拿到 Nami 的
+  按名字路由、别名与白名单、每会话独立历史与工具循环。
+
+  链路：AstrBot → Nami(:8787) → OFM(:18899)
+
+  - 自动同步：启动时按 `_conf_schema.json` 的配置注册模型；
+  - 按会话切换：`/ofm use <模型ID>` 把当前会话的对话模型换成指定模型；
+  - 自检：`/ofm status`（含 Nami 的 /healthz 与 /readyz，一眼看清断在哪一跳）、
+    `/ofm test` 检查模型是否真的能用；
+  - 清理：`/ofm cleanup` 一键移除本插件注册的全部提供商。
+
+  也支持 `relay_mode=direct` 让 AstrBot 直连 OFM 网关；两种模式的提供商 ID 相同，
+  切换是就地改写，不会留下孤儿提供商。
+
+  依赖 Nami 侧已把 OFM 配成上游（在 Nami 目录执行 `npm run ofm -- --write` 后重启），
+  以及 OFM 侧「设置 → Our Free Model → 本地转发」已启用。
+version: 1.1.0
+author: NekoHome
+astrbot_version: ">=4.13,<5"
+tags:
+  - ai
+  - llm
+  - provider
+  - free-model
+  - nami

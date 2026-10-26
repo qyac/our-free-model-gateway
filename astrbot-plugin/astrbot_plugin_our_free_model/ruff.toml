@@ -1,0 +1,23 @@
+# AstrBot 插件的 ruff 配置（`ruff check` / `ruff format` 都用这一份）。
+line-length = 100
+target-version = "py310"
+
+[lint]
+select = ["E4", "E7", "E9", "F", "I", "RUF", "SIM", "BLE"]
+ignore = [
+  # 指令处理、事件钩子和清理循环里必须兜住任意异常：单个模型/提供商出错
+  # 不能把整个插件乃至 AstrBot 启动拖垮，这是有意为之的宽捕获。
+  "BLE001",
+  # 嵌套 async with 在这种「先建 session、再用 session 发请求」的两段式里更好读，
+  # 合并会把整个响应处理块再缩进一级。
+  "SIM117",
+  # 代码是中文优先的：注释、日志和用户可见文案里的全角标点（（）、：，。）是刻意的，
+  # 不是把 ASCII 字符写错了。
+  "RUF001",
+  "RUF002",
+  "RUF003",
+]
+
+[lint.per-file-ignores]
+# 自测脚本是独立进程入口：先改 sys.path 再导入替身包，允许宽捕获与保留导入。
+"tests/**" = ["F401", "F841", "E402"]

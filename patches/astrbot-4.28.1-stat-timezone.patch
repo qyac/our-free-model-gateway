@@ -1,0 +1,13 @@
+diff --git a/astrbot/dashboard/services/stat_service.py b/b/astrbot/dashboard/services/stat_service.py
+index 6ebc3bf..5c37ef4 100644
+--- a/astrbot/dashboard/services/stat_service.py
++++ b/astrbot/dashboard/services/stat_service.py
+@@ -215,7 +215,7 @@ class StatService:
+             start_time = now - offset_sec
+ 
+             async with self.db_helper.get_db() as session:
+-                window_start = datetime.now() - timedelta(seconds=offset_sec)
++                window_start = datetime.now().astimezone() - timedelta(seconds=offset_sec)
+                 result = await session.execute(
+                     select(PlatformStat)
+                     .where(PlatformStat.timestamp >= window_start)

@@ -1,0 +1,71 @@
+{
+  "relay_mode": {
+    "type": "string",
+    "description": "链路模式",
+    "hint": "nami（默认）：AstrBot → Nami → OFM，注册的提供商指向 Nami，由 Nami 再转发到免费模型网关；direct：AstrBot 直接连 OFM 网关。两种模式的提供商 ID 相同，切换是就地改写，不会留下孤儿提供商。",
+    "options": ["nami", "direct"],
+    "default": "nami"
+  },
+  "nami_base_url": {
+    "type": "string",
+    "description": "Nami 入口 Base URL（relay_mode=nami 时使用）",
+    "hint": "Nami 的 OpenAI 兼容地址，默认 http://127.0.0.1:8787/v1。少写 /v1 会自动补上；Nami 侧的 NAMI_API_KEYS 里有哪个 Key 就填哪个。",
+    "default": "http://127.0.0.1:8787/v1"
+  },
+  "nami_api_key": {
+    "type": "string",
+    "description": "Nami API Key（relay_mode=nami 时使用）",
+    "hint": "Nami 的 NAMI_API_KEYS 里的任意一个；Nami 也接受 X-Admin-Token，但这里用 API Key 即可。",
+    "secret": true,
+    "default": ""
+  },
+  "gateway_base_url": {
+    "type": "string",
+    "description": "OFM 网关 Base URL（relay_mode=direct 时使用）",
+    "hint": "dsh-our-free-model 设置页 → 本地转发 中显示的 Base URL，默认 http://127.0.0.1:18899/v1。端口被占用时 OFM 会顺延，请以设置页显示的为准；少写 /v1 会自动补上。",
+    "default": "http://127.0.0.1:18899/v1"
+  },
+  "gateway_api_key": {
+    "type": "string",
+    "description": "OFM 网关 API Key（relay_mode=direct 时使用）",
+    "hint": "同一设置页里的本机 Key（局域网访问用的是另一个 Key）。留空表示网关不要求鉴权。",
+    "secret": true,
+    "default": ""
+  },
+  "models": {
+    "type": "list",
+    "description": "要注册的模型 ID 白名单",
+    "hint": "留空 = 自动从入口 /v1/models 发现（按 max_models 截断）。填写后只注册这些模型；ID 需与 Nami 的 /v1/models 一致（Nami 侧的别名要用别名本身），例如 deepseek-v4.1-flash。",
+    "default": []
+  },
+  "max_models": {
+    "type": "int",
+    "description": "自动发现时最多注册的模型数",
+    "hint": "0 表示不限制。默认 8，避免一次注册几十个提供商。",
+    "default": 8
+  },
+  "provider_enable": {
+    "type": "bool",
+    "description": "注册的提供商是否立即启用",
+    "hint": "关闭后仍会出现在 WebUI 列表中，但需要手动启用才会被调用。",
+    "default": true
+  },
+  "auto_register": {
+    "type": "bool",
+    "description": "AstrBot 启动时自动同步一次",
+    "hint": "关闭后可用 /ofm sync 手动同步。",
+    "default": true
+  },
+  "request_timeout": {
+    "type": "int",
+    "description": "入口请求超时（秒）",
+    "hint": "用于拉取模型清单、/ofm status 的链路探测和 /ofm test 探测。",
+    "default": 20
+  },
+  "chat_timeout": {
+    "type": "int",
+    "description": "生成请求超时（秒）",
+    "hint": "写入注册的提供商配置，作为对话超时时间；免费车道偶发排队，建议不要小于 120。",
+    "default": 300
+  }
+}
