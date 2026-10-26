@@ -10,6 +10,7 @@
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "start": "node server.mjs",
+    "patch": "node scripts/patch-vendor.mjs",
     "check": "node scripts/setup.mjs --check",
     "smoke": "node scripts/smoke.mjs",
     "modes": "node scripts/modes.mjs",

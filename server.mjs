@@ -302,19 +302,27 @@ async function main() {
     cooldowns.set(id, Date.now() + cfg.routing.cooldownMinutes * 60_000)
   }
 
-  /** 请求里有没有图片块（OpenAI 的 image_url 或 Anthropic 的 type:image）。 */
-  const wantsVision = request => {
-    const hasImage = value => {
-      if (value === null || value === undefined) return false
-      try {
-        const text = JSON.stringify(value)
-        return text.includes('image_url') || text.includes('"type":"image"') || text.includes('"type": "image"')
-      } catch {
-        return false
-      }
-    }
-    return hasImage(request.messages) || hasImage(request.openAi?.messages) || hasImage(request.openAi?.input)
-  }
+  /**
+   * 请求里有没有真正的图片块。
+   *
+   * 以前是 `JSON.stringify(...).includes('image_url')`：用户正文里只要提到
+   * `image_url` 这个词（问接口怎么用、贴一段 JSON），text 模式就会误判成
+   * "带图片"直接 400，auto 模式也会白白路由到视觉模型。
+   * 改成按结构化 content 块判断，认 OpenAI chat / Responses / Anthropic 三种图片块。
+   */
+  const IMAGE_BLOCK_TYPES = new Set(['image', 'image_url', 'input_image'])
+  const isImageBlock = block => block !== null
+    && typeof block === 'object'
+    && !Array.isArray(block)
+    && IMAGE_BLOCK_TYPES.has(block.type)
+  const contentHasImage = value => Array.isArray(value)
+    && value.some(item => item !== null && typeof item === 'object' && (
+      isImageBlock(item)
+      || (Array.isArray(item.content) && item.content.some(isImageBlock))
+    ))
+  const wantsVision = request => contentHasImage(request.messages)
+    || contentHasImage(request.openAi?.messages)
+    || contentHasImage(request.openAi?.input)
 
   /** 粗略估算输入长度（字符数 / 3，中英混排在数量级上够用）。 */
   const estimateInputTokens = request => {
